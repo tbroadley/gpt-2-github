@@ -32,30 +32,36 @@ octokit.hook.wrap("request", async (request, options) => {
 go();
 
 async function getComments(repo) {
+  let comments = [];
+
   try {
-    return await octokit.paginate(
+    const iterator = octokit.paginate.iterator(
       octokit.pulls.listCommentsForRepo,
       {
         owner: process.env.OWNER,
         repo,
         since: process.env.SINCE,
-      },
-      (response) => {
-        console.error(
-          `Got comments for ${repo} up to ${max(
-            response.data.map((comment) => comment.created_at)
-          )}`
-        );
-        return response.data.filter(
-          (comment) =>
-            comment.user && comment.user.login == process.env.USER_LOGIN
-        );
       }
     );
+
+    for await (const response of iterator) {
+      console.error(
+        `Got comments for ${repo} up to ${max(
+          response.data.map((comment) => comment.created_at)
+        )}`
+      );
+
+      const commentsFromResponse = response.data.filter(
+        (comment) =>
+          comment.user && comment.user.login == process.env.USER_LOGIN
+      );
+      comments = comments.concat(commentsFromResponse);
+    }
   } catch (e) {
     console.error(e);
-    return [];
   }
+
+  return comments;
 }
 
 async function cleanComment(comment) {
