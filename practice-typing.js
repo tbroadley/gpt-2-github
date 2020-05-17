@@ -18,8 +18,10 @@ let totalCharacters = 0;
 let totalWords = 0;
 let averageWordsPerMinute = undefined;
 
-function formattedSecondsFromMillis(millis) {
-  return `${(millis / 1000).toFixed(1)}s`;
+function minutesAndSecondsFromMillis(millis) {
+  const minutes = millis / 60 / 1000;
+  const seconds = (millis % (60 * 1000)) / 1000;
+  return `${minutes > 1 ? `${minutes.toFixed(0)}m` : ""}${seconds.toFixed(1)}s`;
 }
 
 const rl = readline.createInterface({
@@ -33,6 +35,7 @@ const lines = shuffle(
     .readFileSync(FILENAME, "utf8")
     .split("\n")
     .filter((line) => line.length > 0)
+    .map((line) => line.split("").slice(0, 80).join(""))
 );
 let index = 0;
 
@@ -66,11 +69,11 @@ rl.on("line", (line) => {
     const paddedDistance = `${distance.toString().padStart(2, " ")}d`;
     const paddedTotalDistance = `${totalDistance.toString().padStart(4, " ")}d`;
 
-    const paddedTime = formattedSecondsFromMillis(
+    const paddedTime = minutesAndSecondsFromMillis(
       timeToTypeLineMillis
     ).padStart(6, " ");
-    const paddedTotalTime = formattedSecondsFromMillis(totalTime).padStart(
-      8,
+    const paddedTotalTime = minutesAndSecondsFromMillis(totalTime).padStart(
+      10,
       " "
     );
 
