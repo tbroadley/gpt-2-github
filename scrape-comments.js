@@ -8,6 +8,8 @@ const remark = require("remark");
 
 const cleanMarkdown = require("./clean-markdown");
 
+const EMOJI_REGEX = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
+
 dotenv.config();
 
 const octokit = new Octokit({
@@ -65,7 +67,7 @@ async function getComments(repo) {
 }
 
 async function cleanComment(comment) {
-  const commentBody = comment.body;
+  const commentBody = comment.body.replace(EMOJI_REGEX, "");
   const result = await remark().use(cleanMarkdown).process(commentBody);
   return result.contents === "\n" ? undefined : result.contents;
 }
