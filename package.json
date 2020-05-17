@@ -1,0 +1,7 @@
+{
+  "name": "gpt-2-github",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Thomas Broadley <buriedunderbooks@hotmail.com>",
+  "license": "MIT"
+}
