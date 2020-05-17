@@ -1,6 +1,5 @@
 const { Octokit } = require("@octokit/rest");
 const dotenv = require("dotenv");
-const concat = require("lodash/concat");
 const max = require("lodash/max");
 const shuffle = require("lodash/shuffle");
 
@@ -15,9 +14,9 @@ async function getComments(repo) {
     return await octokit.paginate(
       octokit.pulls.listCommentsForRepo,
       {
-        owner: "Faire",
+        owner: process.env.OWNER,
         repo,
-        since: "2019-02-13",
+        since: process.env.SINCE,
       },
       (response) => {
         console.error(
@@ -26,7 +25,7 @@ async function getComments(repo) {
           )}`
         );
         return response.data.filter(
-          (comment) => comment.user && comment.user.login == "tbroadley"
+          (comment) => comment.user && comment.user.login == process.env.USER_LOGIN
         );
       }
     );
@@ -36,13 +35,14 @@ async function getComments(repo) {
   }
 }
 
-async function go() {
-  const comments = concat(await getComments("web-retailer"), await getComments("backend"));
+async function cleanComment(comment) {
+  return comment.body.replace('\r\n', '\n');
+}
 
-  const commentBodies = comments.map((comment) =>
-    comment.body.replace("\r", "")
-  );
-  const shuffledCommentText = shuffle(commentBodies).join("\n\n");
+async function go() {
+  const comments = (await Promise.all(process.env.REPOS.split(',').map(getComments))).flat();
+  const cleanedComments = await Promise.all(comments.map(cleanComment));
+  const shuffledCommentText = shuffle(cleanedComments).join("\n\n");
 
   console.log(shuffledCommentText);
 }
