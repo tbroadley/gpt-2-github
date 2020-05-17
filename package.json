@@ -8,5 +8,15 @@
     "@octokit/rest": "^17.9.0",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick"
+    }
   }
 }

@@ -1,7 +1,7 @@
-const { Octokit } = require('@octokit/rest');
-const dotenv = require('dotenv');
-const max = require('lodash/max');
-const shuffle = require('lodash/shuffle')
+const { Octokit } = require("@octokit/rest");
+const dotenv = require("dotenv");
+const max = require("lodash/max");
+const shuffle = require("lodash/shuffle");
 
 dotenv.config();
 
@@ -20,8 +20,14 @@ async function go() {
         since: "2020-05-01",
       },
       (response) => {
-        console.error(`Got response: ${max(response.data.map(comment => comment.created_at))}`);
-        return response.data.filter(comment => comment.user.login == "tbroadley");
+        console.error(
+          `Got response: ${max(
+            response.data.map((comment) => comment.created_at)
+          )}`
+        );
+        return response.data.filter(
+          (comment) => comment.user.login == "tbroadley"
+        );
       }
     );
   } catch (e) {
@@ -29,8 +35,10 @@ async function go() {
     return;
   }
 
-  const commentBodies = response.map(comment => comment.body.replace('\r', ''));
-  const shuffledCommentText = shuffle(commentBodies).join('\n\n');
+  const commentBodies = response.map((comment) =>
+    comment.body.replace("\r", "")
+  );
+  const shuffledCommentText = shuffle(commentBodies).join("\n\n");
 
   console.log(shuffledCommentText);
 }
