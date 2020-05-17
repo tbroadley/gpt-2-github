@@ -1,12 +1,14 @@
+const fs = require("fs");
 const leven = require("leven");
+const shuffle = require("lodash/shuffle");
 const readline = require("readline");
-
-const TEST_LINE = "This is a test line. Type it out and press Enter.";
 
 const LINE_INIT = 0;
 const LINE_NOT_STARTED = 1;
 
 const EWMA_COEFFICIENT = 0.2;
+
+const FILENAME = "lines.txt";
 
 let lineStartedAt = LINE_INIT;
 
@@ -26,8 +28,16 @@ const rl = readline.createInterface({
   prompt: "",
 });
 
+const lines = shuffle(
+  fs
+    .readFileSync(FILENAME, "utf8")
+    .split("\n")
+    .filter((line) => line.length > 0)
+);
+let index = 0;
+
 rl.on("line", (line) => {
-  const expectedLine = TEST_LINE;
+  const expectedLine = lines[index];
 
   if (lineStartedAt !== LINE_INIT && lineStartedAt !== LINE_NOT_STARTED) {
     const distance = leven(line, expectedLine);
@@ -87,7 +97,8 @@ rl.on("line", (line) => {
 
   lineStartedAt = LINE_INIT;
 
-  console.log(TEST_LINE);
+  index = (index + 1) % lines.length;
+  console.log(lines[index]);
 });
 
 process.stdin.on("keypress", () => {
@@ -98,5 +109,5 @@ process.stdin.on("keypress", () => {
   }
 });
 
-console.log(TEST_LINE);
+console.log(lines[index]);
 rl.prompt();
