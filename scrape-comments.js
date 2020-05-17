@@ -1,5 +1,6 @@
 const { Octokit } = require("@octokit/rest");
 const dotenv = require("dotenv");
+const concat = require("lodash/concat");
 const max = require("lodash/max");
 const shuffle = require("lodash/shuffle");
 
@@ -9,33 +10,36 @@ const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN });
 
 go();
 
-async function go() {
-  let response;
+async function getComments(repo) {
   try {
-    response = await octokit.paginate(
+    return await octokit.paginate(
       octokit.pulls.listCommentsForRepo,
       {
         owner: "Faire",
-        repo: "backend",
-        since: "2020-05-01",
+        repo,
+        since: "2019-02-13",
       },
       (response) => {
         console.error(
-          `Got response: ${max(
+          `Got comments for ${repo} up to ${max(
             response.data.map((comment) => comment.created_at)
           )}`
         );
         return response.data.filter(
-          (comment) => comment.user.login == "tbroadley"
+          (comment) => comment.user && comment.user.login == "tbroadley"
         );
       }
     );
   } catch (e) {
     console.error(e);
-    return;
+    return [];
   }
+}
 
-  const commentBodies = response.map((comment) =>
+async function go() {
+  const comments = concat(await getComments("web-retailer"), await getComments("backend"));
+
+  const commentBodies = comments.map((comment) =>
     comment.body.replace("\r", "")
   );
   const shuffledCommentText = shuffle(commentBodies).join("\n\n");
