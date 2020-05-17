@@ -1,4 +1,5 @@
 const { Octokit } = require("@octokit/rest");
+const { throttling } = require("@octokit/plugin-throttling");
 const dotenv = require("dotenv");
 const fs = require("fs");
 const max = require("lodash/max");
@@ -9,7 +10,10 @@ const cleanMarkdown = require("./clean-markdown");
 
 dotenv.config();
 
-const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN });
+const octokit = new Octokit({
+  auth: process.env.GITHUB_ACCESS_TOKEN,
+  throttle: { onRateLimit: () => true, onAbuseLimit: () => true },
+});
 
 octokit.hook.wrap("request", async (request, options) => {
   const file = `./.cache/${options.url
@@ -61,13 +65,18 @@ async function cleanComment(comment) {
 }
 
 async function go() {
-  const comments = (
-    await Promise.all(process.env.REPOS.split(",").map(getComments))
-  ).flat();
+  const repos = process.env.REPOS.split(",");
+
+  let comments = [];
+  for (index in repos) {
+    const commentsForRepo = await getComments(repos[index]);
+    comments = comments.concat(commentsForRepo);
+  }
+
   const cleanedComments = (
     await Promise.all(comments.map(cleanComment))
   ).filter((comment) => !!comment);
-  const shuffledCommentText = shuffle(cleanedComments).join("\n");
 
+  const shuffledCommentText = shuffle(cleanedComments).join("\n");
   console.log(shuffledCommentText);
 }

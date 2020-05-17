@@ -5,6 +5,7 @@
   "author": "Thomas Broadley <buriedunderbooks@hotmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@octokit/plugin-throttling": "^3.2.0",
     "@octokit/rest": "^17.9.0",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.15",
