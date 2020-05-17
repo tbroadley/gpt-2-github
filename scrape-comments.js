@@ -2,6 +2,9 @@ const { Octokit } = require("@octokit/rest");
 const dotenv = require("dotenv");
 const max = require("lodash/max");
 const shuffle = require("lodash/shuffle");
+const remark = require("remark");
+
+const cleanMarkdown = require("./clean-markdown");
 
 dotenv.config();
 
@@ -25,7 +28,8 @@ async function getComments(repo) {
           )}`
         );
         return response.data.filter(
-          (comment) => comment.user && comment.user.login == process.env.USER_LOGIN
+          (comment) =>
+            comment.user && comment.user.login == process.env.USER_LOGIN
         );
       }
     );
@@ -36,13 +40,18 @@ async function getComments(repo) {
 }
 
 async function cleanComment(comment) {
-  return comment.body.replace('\r\n', '\n');
+  const commentBody = comment.body;
+  const result = await remark().use(cleanMarkdown).process(commentBody);
+  console.error(result);
+  return result.contents;
 }
 
 async function go() {
-  const comments = (await Promise.all(process.env.REPOS.split(',').map(getComments))).flat();
+  const comments = (
+    await Promise.all(process.env.REPOS.split(",").map(getComments))
+  ).flat();
   const cleanedComments = await Promise.all(comments.map(cleanComment));
-  const shuffledCommentText = shuffle(cleanedComments).join("\n\n");
+  const shuffledCommentText = shuffle(cleanedComments).join("\n");
 
   console.log(shuffledCommentText);
 }
