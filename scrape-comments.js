@@ -1,5 +1,6 @@
 const { Octokit } = require("@octokit/rest");
 const dotenv = require("dotenv");
+const fs = require("fs");
 const max = require("lodash/max");
 const shuffle = require("lodash/shuffle");
 const remark = require("remark");
@@ -9,6 +10,19 @@ const cleanMarkdown = require("./clean-markdown");
 dotenv.config();
 
 const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN });
+
+octokit.hook.wrap("request", async (request, options) => {
+  const file = `./.cache/${options.url
+    .replace("https://api.github.com/", "")
+    .replace(/\//g, "-")}`;
+  if (fs.existsSync(file)) {
+    return JSON.parse(fs.readFileSync(file));
+  } else {
+    const response = await request(options);
+    fs.writeFileSync(file, JSON.stringify(response));
+    return response;
+  }
+});
 
 go();
 
@@ -42,7 +56,6 @@ async function getComments(repo) {
 async function cleanComment(comment) {
   const commentBody = comment.body;
   const result = await remark().use(cleanMarkdown).process(commentBody);
-  console.error(result);
   return result.contents;
 }
 
