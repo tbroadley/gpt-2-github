@@ -3,5 +3,10 @@
   "version": "0.1.0",
   "main": "index.js",
   "author": "Thomas Broadley <buriedunderbooks@hotmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^17.9.0",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.15"
+  }
 }
