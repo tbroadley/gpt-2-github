@@ -15,6 +15,7 @@ octokit.hook.wrap("request", async (request, options) => {
   const file = `./.cache/${options.url
     .replace("https://api.github.com/", "")
     .replace(/\//g, "-")}`;
+
   if (fs.existsSync(file)) {
     return JSON.parse(fs.readFileSync(file));
   } else {
@@ -56,14 +57,16 @@ async function getComments(repo) {
 async function cleanComment(comment) {
   const commentBody = comment.body;
   const result = await remark().use(cleanMarkdown).process(commentBody);
-  return result.contents;
+  return result.contents === "\n" ? undefined : result.contents;
 }
 
 async function go() {
   const comments = (
     await Promise.all(process.env.REPOS.split(",").map(getComments))
   ).flat();
-  const cleanedComments = await Promise.all(comments.map(cleanComment));
+  const cleanedComments = (
+    await Promise.all(comments.map(cleanComment))
+  ).filter((comment) => !!comment);
   const shuffledCommentText = shuffle(cleanedComments).join("\n");
 
   console.log(shuffledCommentText);
