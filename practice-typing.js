@@ -22,7 +22,9 @@ let averageWordsPerMinute = undefined;
 function minutesAndSecondsFromMillis(millis) {
   const minutes = millis / 60 / 1000;
   const seconds = (millis % (60 * 1000)) / 1000;
-  return `${minutes > 1 ? `${minutes.toFixed(0)}m` : ""}${seconds.toFixed(1)}s`;
+  return `${
+    minutes >= 1 ? `${Math.floor(minutes).toFixed(0)}m` : ""
+  }${seconds.toFixed(1)}s`;
 }
 
 const rl = readline.createInterface({
