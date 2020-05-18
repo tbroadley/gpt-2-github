@@ -16,9 +16,9 @@ Node 12 and Yarn.
 GITHUB_ACCESS_TOKEN=[GitHub access token]
 
 OWNER=[owner of the repos you want to scrape comments from]
-REPOS=[comma-separated list of
+REPOS=[comma-separated list of repos you want to scrape]
 USER_LOGIN=[user whose comments you want to scrape]
-SINCE=[yyyy-mm-dd date from which to start scraping comments]
+SINCE=[yyyy-mm-dd date from which to start scraping]
 ```
 
 4. Run `node scrape-comments.js > comments.txt`. This will create a file called `comments.txt` containing the scraped comments.
