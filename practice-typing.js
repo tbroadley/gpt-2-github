@@ -2,6 +2,7 @@ const fs = require("fs");
 const leven = require("leven");
 const shuffle = require("lodash/shuffle");
 const readline = require("readline");
+const sbd = require("sbd");
 
 const LINE_INIT = 0;
 const LINE_NOT_STARTED = 1;
@@ -35,7 +36,7 @@ const lines = shuffle(
     .readFileSync(FILENAME, "utf8")
     .split("\n")
     .filter((line) => line.length > 0)
-    .map((line) => line.split("").slice(0, 80).join(""))
+    .flatMap((line) => sbd.sentences(line))
 );
 let index = 0;
 
